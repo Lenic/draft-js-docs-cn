@@ -30,7 +30,7 @@ Entity 是 Draft.js 中表示一段文本元数据的对象。有三个属性：
 
 Entity 实例应该使用 `Entity.create` 方法创建，接受上面介绍的三个属性作为参数。方法的返回值是一个字符串，也就是唯一标识符。
 
-这个标识符就是使用这个 Entity 实例对象时的指代，加到编辑的文本内容中去。比如使用 `Modifier` 模块包含的 `applyEntity` 方法：
+这个标识符就是当前 Entity 实例对象时的指代，可以加到编辑的文本内容中去。比如使用 `Modifier` 模块包含的 `applyEntity` 方法：
 
 ```js
 const key = Entity.create('LINK', 'MUTABLE', {href: 'http://lenic.coding.me'});
@@ -41,9 +41,7 @@ const contentStateWithLink = Modifier.applyEntity(
 );
 ```
 
-For a given range of text, then, you can extract its associated entity key by using
-the `getEntityAt()` method on a `ContentBlock` object, passing in the target
-offset value.
+对于一段给定的文本，使用目标的偏移量，可以通过`ContentBlock` 对象的 `getEntityAt()` 获取关联的 Entity 唯一标识符。
 
 ```js
 const blockWithLinkAtBeginning = contentState.getBlockForKey('...');
@@ -52,61 +50,43 @@ const linkInstance = Entity.get(linkKey);
 const {href} = linkInstance.getData();
 ```
 
-## "Mutability"
+## 可变性
 
-Entities may have one of three "mutability" values. The difference between them
-is the way they behave when the user makes edits to them.
+Entity 有三个可变性的值，区别在于用户编辑时的不同表现方式。
 
-Note that `DraftEntityInstance` objects are always immutable Records, and this
-property is meant only to indicate how the annotated text may be "mutated" within
-the editor. _(Future changes may rename this property to ward off potential
-confusion around naming.)_
+注意 `DraftEntityInstance` 对象总是不可变的，并且这个属性仅仅指示编辑器对于这段文本的可修改性。*考虑将来对这个属性重命名，以避免可能的命名混乱。*
 
-### Immutable
+### Immutable -- 不可变的
 
-This text cannot be altered without removing the entity annotation
-from the text. Entities with this mutability type are effectively atomic.
+在不删除 Entity 的情况下，此种类型的 Entity 不能更改。具有这种可变性的 Entity 实体实际上是原子的。
 
-For instance, in a Facebook input, add a mention for a Page (i.e. Barack Obama).
-Then, either add a character within the mentioned text, or try to delete a character.
-Note that when adding characters, the entity is removed, and when deleting character,
-the entire entity is removed.
+> 译者注：原子性说的就是不可改变。原子性的事物，只有两种操作：创建和删除。
 
-This mutability value is useful in cases where the text absolutely must match
-its relevant metadata, and may not be altered.
+例如，在 Facebook 输入框中，添加一个页面的提及（这里可以理解为微博的 # 话题功能），然后添加或移除一个字符。注意，在添加字符时，Entity（这个提及）被删除，更改成普通文本；在移除字符时，Entity 整体被移除。
 
-### Mutable
+这种可变性在文本必须绝对匹配元数据的情况下非常有用，因为其不可改变。
 
-This text may be altered freely. For instance, link text is
-generally intended to be "mutable" since the href and linkified text are not
-tightly coupled.
+### Mutable -- 可变的
 
-### Segmented
+这种类型的文本可以随意更改。比如，超链接的文本通常是可以更改的，这是因为超链接的文本与其目标网站并没有耦合在一起。
 
-Entities that are "segmented" are tightly coupled to their text in much the
-same way as "immutable" entities, but allow customization via deletion.
+### Segmented -- 特定的文本
 
-For instance, in a Facebook input, add a mention for a friend. Then, add a
-character to the text. Note that the entity is removed from the entire string,
-since your mentioned friend may not have their name altered in your text.
+Segmented 类型的文本和 Immutable 类型的文本表现大体相同，除了可以通过删除来定制之外。
 
-Next, try deleting a character or word within the mention. Note that only the
-section of the mention that you have deleted is removed. In this way, we can
-allow short names for mentions.
+例如，在 Facebook 的输入框中，添加一个朋友的提及（这里可以理解为微博的 @ 某个人），然后添加一个字符。请注意，Entity 将会从整个字符串中移除，因为你提到的朋友没有在文本中更改自己的名字。
 
-## Modifying Entities
+接下来，尝试删除提及中的字符或单词。注意仅仅只是删除了你删除的部分字符。这样，我们可以允许短名称提及，
 
-Since `DraftEntityInstance` records are immutable, you may not update the `data`
-property on an instance directly.
+## 修改 Entity
 
-Instead, two `Entity` methods are available to modify entities: `mergeData` and
-`replaceData`. The former allows updating data by passing in an object to merge,
-while the latter completely swaps in the new data object.
+因为 `DraftEntityInstance` 是不可变的，所以你不能直接更新对象的 `data` 属性。
 
-## Using Entities for Rich Content
+相反，Entity 有两个实例方法用于更新操作：`mergeData` 和 `replaceData`。前者可以通过传入要合并的数据来更新 Entity 实例，后者可以使用新的对象完全替换原对象。
 
-The next article in this section covers the usage of decorator objects, which
-can be used to retrieve entities for rendering purposes.
+## 将 Entity 用于富文本
+
+本节的下一篇文章将介绍 Decorator 的用法，一般被用来检索 Entity 渲染为 DOM 元素。
 
 The [link editor example](https://github.com/facebook/draft-js/tree/master/examples/link)
 provides a working example of entity creation and decoration in use.
