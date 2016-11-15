@@ -88,5 +88,4 @@ Segmented 类型的文本和 Immutable 类型的文本表现大体相同，除�
 
 本节的下一篇文章将介绍 Decorator 的用法，一般被用来检索 Entity 渲染为 DOM 元素。
 
-The [link editor example](https://github.com/facebook/draft-js/tree/master/examples/link)
-provides a working example of entity creation and decoration in use.
+可以查看这个[例子](https://github.com/facebook/draft-js/tree/master/examples/link)来了解 Entity 和 Decorator 是如何工作的。
